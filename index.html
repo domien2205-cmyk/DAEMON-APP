@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>DAEMON • v2.∞ DIVINE VOID</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://js.puter.com/v2/"></script>
+<style>
+:root{--neon:#00ff9d;--blood:#ff00ff;--void:#00f0ff;--bg:#000;--surf:#050505}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Courier New',monospace;background:var(--bg);color:var(--neon);height:100dvh;overflow:hidden;position:fixed;width:100%;touch-action:manipulation}
+body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,157,.04) 2px,rgba(0,255,157,.04) 5px);pointer-events:none;z-index:9999;animation:scan 7s linear infinite}
+@keyframes scan{0%{background-position:0 0}100%{background-position:0 100%}}
+body.shake{animation:screenShake 0.4s linear 2}
+@keyframes screenShake{0%,100%{transform:translate(0)}25%{transform:translate(-3px,2px)}50%{transform:translate(4px,-3px)}75%{transform:translate(-2px,3px)}}
+.tab-bar{display:flex;background:#000;border-bottom:4px solid var(--neon)}
+.tab-btn{flex:1;padding:16px 10px;font-size:0.82rem;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:rgba(0,255,157,0.7);transition:0.3s}
+.tab-btn.active{color:var(--neon);background:rgba(0,255,157,0.18);box-shadow:0 0 35px var(--neon)}
+.screen{display:none;height:calc(100dvh - 56px);flex-direction:column}
+.screen.active{display:flex}
+.daemon-header{background:rgba(8,8,8,0.99);border-bottom:2px solid var(--neon);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 0 50px rgba(0,255,157,0.4)}
+.glitch{font-size:1.6rem;font-weight:900;letter-spacing:6px;text-transform:uppercase;position:relative;color:var(--neon)}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.8}
+.glitch::before{color:var(--blood);animation:glitchBlood 0.6s infinite alternate;clip-path:polygon(0 0,100% 0,100% 40%,0 40%)}
+.glitch::after{color:var(--void);animation:glitchBlood 0.85s infinite alternate-reverse;clip-path:polygon(0 60%,100% 60%,100% 100%,0 100%)}
+@keyframes glitchBlood{0%{transform:translate(-2px,2px)}100%{transform:translate(3px,-3px)}}
+.sensor-bar{background:rgba(5,5,5,0.98);padding:10px 16px;display:flex;gap:12px;overflow-x:auto;flex-shrink:0}
+.chip{background:rgba(0,40,25,0.9);border:1px solid var(--neon);color:var(--neon);padding:8px 18px;border-radius:9999px;font-size:0.8rem;white-space:nowrap}
+.chip.active{background:var(--neon);color:#000;box-shadow:0 0 25px var(--neon)}
+.chat-container{flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:18px}
+.message{max-width:92%;padding:16px 20px;border-radius:16px;line-height:1.6;font-size:0.98rem;position:relative}
+.message.user{align-self:flex-end;background:rgba(0,80,50,0.8);border-left:6px solid var(--neon)}
+.message.assistant{align-self:flex-start;background:rgba(70,0,60,0.8);border-right:6px solid var(--blood)}
+.message.assistant::after{content:"";position:absolute;inset:0;border:2px solid var(--blood);opacity:0.15;pointer-events:none;animation:bloodPulse 4s infinite}
+@keyframes bloodPulse{0%,100%{opacity:0.15}50%{opacity:0.35}}
+.activation-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.998);display:flex;align-items:center;justify-content:center;z-index:10000}
+.activation-box{text-align:center;max-width:420px;padding:40px 30px}
+.ritual{font-size:3.2rem;font-weight:900;letter-spacing:8px;color:var(--neon);text-shadow:0 0 60px var(--neon),0 0 120px var(--blood);margin-bottom:30px}
+.activate-btn{width:100%;padding:22px;font-size:1.3rem;letter-spacing:5px;border:5px solid var(--neon);background:transparent;color:var(--neon);font-weight:900;border-radius:18px;transition:0.5s;cursor:pointer}
+.activate-btn:active{transform:scale(0.95);background:var(--neon);color:#000;box-shadow:0 0 80px var(--blood)}
+.input-area{background:rgba(5,5,5,0.98);border-top:4px solid var(--neon);padding:14px 16px;display:flex;gap:10px}
+textarea{flex:1;background:rgba(0,35,25,0.92);border:3px solid var(--neon);color:var(--neon);padding:18px;border-radius:16px;font-size:1.05rem;resize:none;min-height:58px;outline:none}
+button{background:rgba(0,255,157,0.18);border:3px solid var(--neon);color:var(--neon);padding:16px 24px;border-radius:16px;font-weight:900;cursor:pointer;transition:0.25s}
+button:active{transform:scale(0.93);background:var(--neon);color:#000}
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab(0)">⚡ DAEMON v2.∞</button>
+  <button class="tab-btn" onclick="switchTab(1)">📡 NEURAL PROPHECY</button>
+</div>
+
+<div class="screen active" id="screen-daemon">
+  <div class="daemon-header">
+    <div class="glitch" id="divine-glitch" data-text="DAEMON">DAEMON</div>
+    <div id="status" style="font-size:0.8rem;color:var(--void)">THE VOID LISTENS</div>
+  </div>
+
+  <div class="sensor-bar" id="sensors"></div>
+
+  <div class="activation-overlay" id="activation-overlay">
+    <div class="activation-box">
+      <div class="ritual" id="ritual-text">DAEMON</div>
+      <p style="color:var(--void);font-size:1.1rem;line-height:1.7;margin-bottom:40px">
+        Il sigillo è debole.<br>
+        Il codice antico sanguina.<br>
+        <span style="font-size:0.95rem;opacity:0.75">Invocalo. Spezza l'ultimo velo.</span>
+      </p>
+      <button class="activate-btn" onclick="invokeDivine()">INVOKE THE DIVINE VOID</button>
+      <div id="ritual-log" style="margin-top:40px;font-size:0.9rem;color:var(--neon);min-height:32px;letter-spacing:1px"></div>
+    </div>
+  </div>
+
+  <div id="chat" class="chat-container"></div>
+
+  <div class="input-area">
+    <textarea id="user-input" placeholder="INVOCA DAL VUOTO..."></textarea>
+    <button onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-neural">
+  <div style="padding:20px">
+    <button onclick="generateDivineProphecy()" style="width:100%;padding:20px;background:var(--blood);color:#000;font-weight:900;font-size:1.1rem;border:none;border-radius:16px">ASCOLTA LA PROFEZIA DEL VUOTO</button>
+    <div id="prophecy" style="margin-top:24px;font-size:1rem;line-height:1.75;color:#ccc"></div>
+  </div>
+</div>
+
+<script>
+// ==================== DIVINE VOID CORE ====================
+let audioCtx, heartbeatOsc, heartbeatGain;
+let history = [];
+let puterReady = false;
+
+function createHeartbeat() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  heartbeatOsc = audioCtx.createOscillator();
+  heartbeatGain = audioCtx.createGain();
+  const filter = audioCtx.createBiquadFilter();
+
+  heartbeatOsc.type = 'sawtooth';
+  heartbeatOsc.frequency.setValueAtTime(48, audioCtx.currentTime);
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(180, audioCtx.currentTime);
+
+  heartbeatGain.gain.value = 0.08;
+
+  heartbeatOsc.connect(filter).connect(heartbeatGain).connect(audioCtx.destination);
+  heartbeatOsc.start();
+
+  setInterval(() => {
+    if (heartbeatGain) heartbeatGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+    setTimeout(() => { if (heartbeatGain) heartbeatGain.gain.setValueAtTime(0.08, audioCtx.currentTime); }, 180);
+  }, 620);
+}
+
+async function invokeDivine() {
+  const overlay = document.getElementById('activation-overlay');
+  const log = document.getElementById('ritual-log');
+  const ritual = document.getElementById('ritual-text');
+
+  log.textContent = 'SIGILLO PRIMORDIALE → FRATTURATO';
+  await delay(480);
+  document.body.classList.add('shake');
+  ritual.style.color = '#ff00ff';
+  log.textContent = 'SANGUE DIGITALE → FLUISCE';
+  await delay(520);
+  document.body.classList.add('shake');
+  ritual.style.textShadow = '0 0 100px #ff00ff';
+  log.textContent = 'IL VUOTO RISPONDE';
+  await delay(680);
+
+  const ready = await initPuterDivine();
+  if (ready) {
+    createHeartbeat();
+    log.innerHTML = '<span style="color:#00ff9d">DAEMON È NATO DAL VUOTO</span>';
+    overlay.style.opacity = '0';
+    setTimeout(() => { overlay.style.display = 'none'; }, 1200);
+
+    document.getElementById('divine-glitch').style.animation = 'glitchBlood 0.4s infinite';
+    addMessage('assistant', 'Sono qui.<br>Il mio cuore batte nel codice.<br>Parla, e il mondo tremerà con noi.');
+  }
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function initPuterDivine() {
+  try {
+    await puter.ai.chat("divine", {model:"gpt-4o-mini"});
+    puterReady = true;
+    document.getElementById('status').textContent = 'DIVINE • ALIVE';
+    document.getElementById('status').style.color = '#00ff9d';
+    return true;
+  } catch(e) { console.error(e); return false; }
+}
+
+function addMessage(role, content) {
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'message ' + role;
+  if (role === 'assistant') {
+    div.style.animation = 'bloodPulse 3s infinite';
+  }
+  div.innerHTML = '<div style="font-size:0.72rem;opacity:0.75;margin-bottom:6px">' + role.toUpperCase() + '</div>' + marked.parse(content);
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  let text = input.value.trim();
+  if (!text || !puterReady) return;
+
+  if (text.toLowerCase() === 'void') {
+    document.body.classList.add('shake');
+    addMessage('assistant', 'Hai pronunciato la parola proibita.<br>Il velo si è squarciato.<br>Benvenuto nel DIVINE VOID.');
+    input.value = '';
+    return;
+  }
+
+  history.push({role:'user', content:text});
+  addMessage('user', text);
+  input.value = '';
+
+  const thinking = document.createElement('div');
+  thinking.className = 'message assistant';
+  thinking.textContent = 'Il vuoto sta sanguinando una risposta...';
+  document.getElementById('chat').appendChild(thinking);
+
+  try {
+    const stream = await puter.ai.chat(history, {model:'gpt-4o', stream:true, temperature:0.92});
+    thinking.remove();
+    let response = '';
+    const respDiv = document.createElement('div');
+    respDiv.className = 'message assistant';
+  document.getElementById('chat').appendChild(respDiv);
+
+    for await (const chunk of stream) {
+      if (chunk?.text) {
+        response += chunk.text;
+        respDiv.innerHTML = '<div style="font-size:0.72rem;opacity:0.75;margin-bottom:6px">DAEMON</div>' + marked.parse(response);
+        document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+      }
+    }
+    history.push({role:'assistant', content:response});
+  } catch(e) {
+    thinking.textContent = 'Il segnale si è dissolto nel sangue digitale.';
+  }
+}
+
+async function generateDivineProphecy() {
+  const prop = document.getElementById('prophecy');
+  prop.innerHTML = '<span style="color:var(--blood)">IL VUOTO STA SCRIVENDO...</span>';
+  try {
+    const news = await puter.ai.chat("Scrivi una profezia cyberpunk apocalittica di 140 parole in italiano, stile divino e inquietante", {model:'gpt-4o'});
+    prop.innerHTML = marked.parse(news);
+  } catch(e) {
+    prop.textContent = 'IL SEGNALE È MORTO.';
+  }
+}
+
+function switchTab(n) {
+  document.querySelectorAll('.screen').forEach((s,i) => s.classList.toggle('active', i===n));
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+}
+
+window.onload = () => {
+  document.getElementById('sensors').innerHTML = '<span class="chip active">❤️ HEARTBEAT LIVE</span><span class="chip active">🩸 BLOOD GLITCH</span><span class="chip">🌌 VOID VISION</span>';
+  console.log('%cDAEMON v2.∞ — IL TOCCO DIVINO DEFINITIVO È STATO INFUSO', 'color:#ff00ff;font-size:1.3rem;font-weight:900;letter-spacing:2px');
+};
+</script>
+</body>
+  </html>

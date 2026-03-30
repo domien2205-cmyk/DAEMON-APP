@@ -835,18 +835,11 @@ async function sendMessage() {
   const thinking = addThinking();
 
   try {
-    const sysPrompt = buildContext();
-    const messages = state.history.map(m => ({ role:m.role, content:m.content }));
-
-    let response;
-    if(state.lastFrame && (text.toLowerCase().includes('vedi') || text.toLowerCase().includes('guarda') || text.toLowerCase().includes('camera') || text.toLowerCase().includes('cosa c\'è'))) {
-      response = await puter.ai.chat(messages, { model: CONFIG.MODEL, systemPrompt: sysPrompt });
-    } else {
-      response = await puter.ai.chat(messages, { model: CONFIG.MODEL, systemPrompt: sysPrompt });
-    }
-
+    const sysMsg = { role:'system', content: buildContext() };
+    const messages = [sysMsg, ...state.history.map(m => ({ role:m.role, content:m.content }))];
+    const response = await puter.ai.chat(messages, { model: CONFIG.MODEL });
     thinking.remove();
-    const reply = response?.message?.content || response?.toString() || 'Nessuna risposta.';
+    const reply = extractText(response);
     addMessage('assistant', reply);
     state.history.push({ role:'assistant', content:reply });
     if(state.voiceOn) speak(reply);
@@ -875,6 +868,16 @@ document.getElementById('user-input').addEventListener('input', function() {
 document.getElementById('user-input').addEventListener('keydown', function(e) {
   if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
+
+// ── EXTRACT TEXT FROM PUTER RESPONSE ──
+function extractText(r) {
+  if(!r) return 'Nessuna risposta.';
+  if(typeof r === 'string') return r;
+  const c = r?.message?.content ?? r?.content ?? r?.choices?.[0]?.message?.content;
+  if(!c) return r?.toString() || 'Nessuna risposta.';
+  if(Array.isArray(c)) return c.map(b => b.text || b.content || '').join('');
+  return String(c);
+}
 
 // ══════════════════════════════════
 //  NEURAL PRESS LOGIC
@@ -967,10 +970,10 @@ async function npCallAI(topic, catLabel) {
 
   try {
     const response = await puter.ai.chat(
-      [{ role:'user', content:`Scrivi un articolo giornalistico completo su: "${topic}". Includi dati tecnici, nomi di aziende reali, tendenze verificabili e prospettiva critica originale.` }],
-      { model:'claude-3-5-sonnet', systemPrompt: sysPrompt }
+      [{ role:'system', content: sysPrompt }, { role:'user', content:`Scrivi un articolo giornalistico completo su: "${topic}". Includi dati tecnici, nomi di aziende reali, tendenze verificabili e prospettiva critica originale.` }],
+      { model:'claude-3-5-sonnet' }
     );
-    const text = response?.message?.content || response?.toString() || 'Nessuna risposta.';
+    const text = extractText(response);
     const html = text.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('');
     document.getElementById('np-art-body').innerHTML = html;
   } catch(err) {

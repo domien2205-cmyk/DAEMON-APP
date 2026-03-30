@@ -657,10 +657,10 @@ async function activateDaemon() {
   const btn = document.getElementById('activate-btn');
   btn.disabled = true;
   vibrate([50,100,50]);
-  showStatus('Connessione Puter.js...');
+  showStatus('Avvio sensori...');
 
   try {
-    await puter.init();
+    // Puter.js v2 si auto-inizializza, niente puter.init()
     updateChip('net-chip', true);
     state.sensors.net = true;
     showStatus('Avvio sensori...');
